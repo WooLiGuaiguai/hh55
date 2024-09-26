@@ -1,0 +1,80 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+    <title> Test webview </title>
+
+    <script>
+      //医保 - 支付宝跳转测试
+      function didClickOpenAlipay() {
+          //window.location.href="alipays://platformapi/startapp?appId=2021003146606232"
+          //window.location.href="weixin://dl/business/?appid=wxdb10d348b5e0c0f4"
+          //window.location.href = "https://www.baidu.com/"
+
+          var jsonParams = {
+            "url": "alipays://platformapi/startapp?",
+            "callBackName":"checkAppCallback"
+          }
+          var obj = {
+            "method":"canLaunchAppUri",
+            "params":JSON.stringify(jsonParams)
+          }
+          window.webkit.messageHandlers.JDAppUnite.postMessage(obj);
+      }
+
+      function checkAppCallback(res) {
+        console.log('res',res)
+        console.log('res.data',res.data)
+      }
+
+      //小金库去转入测试
+      //"xjkPayStatus": "0",
+      //0.充值成功: 刷新收银台首页
+      //1.支付成功: 校验支付结果
+      //2.转入支付成功但调账处理中: 刷新收银台首页
+      //3.异端订单已完成: 关闭 webview 页面(业务h5负责关闭)，关闭收银台支付页 并 跳转我的订单
+      //4.异端订单已取消: 关闭 webview 页面(业务h5负责关闭)，关闭收银台支付页 并 跳转我的订单
+      function didClick_xjkPayStatus()
+      {
+          var jsonParams = {
+            "type": "notifiedMessageFromXJKWebView",
+            "xjkPayStatus": "2",
+            "orderId":"orderId"
+          }
+          var obj = {
+            "method":"notifyMessageToCustomWebView",
+            "params":JSON.stringify(jsonParams)
+          }
+          window.webkit.messageHandlers.JDAppUnite.postMessage(obj);
+      }
+
+      //医保中间页，刷新收银台调试方法
+      function didClick_needRefreshCashier()
+      {
+          window.XWebView && window.XWebView.callNative("CashierSdkPlugin", "needRefreshCashier", "", "", "")
+      }
+
+    </script>
+</head>
+<body>
+
+<div id="open app">
+    <button onclick="didClickOpenAlipay()"> ~ click Here to open Alipay~ </button>
+</div>
+
+<div id="xjkPayStatus">
+    <button onclick="didClick_xjkPayStatus()"> ~ 小金库去转入 点击调用 测试代码 ~ </button>
+</div>
+
+
+<div id="xjkPayStatus">
+    <button onclick="didClick_needRefreshCashier()"> ~ 医保中间页，刷新收银台 点击调用 测试代码 ~ </button>
+</div>
+
+</body>
+</html>
